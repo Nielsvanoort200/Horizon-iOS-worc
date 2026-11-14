@@ -62,9 +62,23 @@ jobs:
             CODE_SIGNING_ALLOWED=NO
 
           mkdir -p Payload
-          cp -r build/Build/Products/Release-iphoneos/Horizon.app Payload/
-          cp -r ios_bundle/resources Payload/Horizon.app/resources
           
+          # Automatically find the built app bundle to avoid path errors
+          APP_PATH=$(find build -name "Horizon.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "Error: Horizon.app not found in build directory!"
+            exit 1
+          fi
+          
+          cp -r "$APP_PATH" Payload/
+          
+          # Copy the prepared game resources into the app bundle
+          mkdir -p Payload/Horizon.app/resources
+          if [ -d "ios_bundle/.local/horizon-client/26.3" ]; then
+            cp -r ios_bundle/.local/horizon-client/26.3/* Payload/Horizon.app/resources/
+          fi
+          
+          # Package into the final unsigned IPA
           zip -qry Horizon-iOS.ipa Payload
 
       - name: Upload IPA Artifact
