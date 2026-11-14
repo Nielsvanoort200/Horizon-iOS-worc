@@ -1,5 +1,4 @@
 name: Build Horizon iOS
-
 on:
   push:
     branches: [ "main", "master" ]
