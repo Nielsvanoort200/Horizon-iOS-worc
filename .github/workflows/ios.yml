@@ -31,6 +31,7 @@ jobs:
 
       - name: Fetch Private Game Jars
         env:
+          GOOGLE_KEY_JSON: ${{ secrets.GOOGLE_KEY_JSON }}
           GOOGLE_KEY: ${{ secrets.GOOGLE_KEY }}
           CLIENT_JAR_URL: ${{ secrets.CLIENT_JAR_URL }}
           SERVER_JAR_URL: ${{ secrets.SERVER_JAR_URL }}
