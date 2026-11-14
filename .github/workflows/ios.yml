@@ -43,7 +43,10 @@ jobs:
           curl -fL "$CLIENT_JAR_URL" -o game_files/.minecraft/versions/26.3/26.3.jar
           echo "Downloading server jar..."
           curl -fL "$SERVER_JAR_URL" -o game_files/server.jar
-
+          
+      - name: Prepare Minecraft Version Directory
+        run: mkdir -p game_files/.minecraft/versions/26.3
+         
       - name: Generate Horizon Game Data
         run: |
           mkdir -p ios_bundle
