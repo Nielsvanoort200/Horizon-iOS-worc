@@ -52,8 +52,8 @@ jobs:
       - name: Generate Horizon Game Data
         run: |
           mkdir -p ios_bundle
-          if [ -f "research-lock.yml" ]; then
-            cp research-lock.yml ios_bundle/
+          if [ -f "research-lock.json" ]; then
+            cp research-lock.json ios_bundle/
           fi
           
           cargo run --release -p horizon-prepare -- \
