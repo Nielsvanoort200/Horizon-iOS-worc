@@ -31,7 +31,8 @@ jobs:
 
       - name: Fetch Private Game Jars
         env:
-         CLIENT_JAR_URL: ${{ secrets.CLIENT_JAR_URL }}
+          CLIENT_JAR_URL: ${{ secrets.CLIENT_JAR_URL }}
+          SERVER_JAR_URL: ${{ secrets.SERVER_JAR_URL }}
         run: |
           if [ -z "$CLIENT_JAR_URL" ]; then
             echo "Error: CLIENT_JAR_URL secret is empty or missing!"
