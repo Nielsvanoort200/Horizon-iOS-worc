@@ -42,7 +42,7 @@ jobs:
           fi
           mkdir -p game_files/.minecraft/versions/26.3
           echo "Downloading client jar..."
-          curl -fL "$CLIENT_JAR_URL" -o game_files/.minecraft/versions/26.3/26.3.jar
+          curl -fL "$CLIENT_JAR_URL" -o game_files/.minecraft/versions/26.3/26.3.yml
           echo "Downloading server jar..."
           curl -fL "$SERVER_JAR_URL" -o game_files/server.jar
           
