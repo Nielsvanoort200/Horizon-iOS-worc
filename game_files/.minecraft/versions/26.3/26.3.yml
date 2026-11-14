@@ -1,0 +1,3 @@
+- name: Fetch Private Game Jars
+        env:
+          GOOGLE_KEY_JSON: ${{ secrets.GOOGLE_KEY_JSON }}
