@@ -44,7 +44,7 @@ jobs:
           echo "Downloading client jar..."
           curl -fL "$CLIENT_JAR_URL" -o game_files/.minecraft/versions/26.3/26.3.yml
           echo "Downloading server jar..."
-          curl -fL "$SERVER_JAR_URL" -o game_files/server.jar
+          curl -fL "$SERVER_JAR_URL" -o game_files/server.yml
           
       - name: Prepare Minecraft Version Directory
         run: mkdir -p game_files/.minecraft/versions/26.3
@@ -58,7 +58,7 @@ jobs:
           
           cargo run --release -p horizon-prepare -- \
             --prepare \
-            --server-jar game_files/server.jar \
+            --server-jar game_files/server.yml \
             --minecraft-dir game_files/.minecraft/versions/26.3/26.3.yml \
             --root ios_bundle
 
