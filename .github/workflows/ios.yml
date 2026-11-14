@@ -59,7 +59,7 @@ jobs:
           cargo run --release -p horizon-prepare -- \
             --prepare \
             --server-jar game_files/server.jar \
-            --minecraft-dir game_files/.minecraft \
+            --minecraft-dir game_files/.minecraft/versions/26.3 \
             --root ios_bundle
 
       - name: Build Rust Engine for iOS
