@@ -34,17 +34,18 @@ jobs:
           CLIENT_JAR_URL: ${{ secrets.CLIENT_JAR_URL }}
           SERVER_JAR_URL: ${{ secrets.SERVER_JAR_URL }}
         run: |
-          mkdir -p game_files
-          curl -fL "$CLIENT_JAR_URL" -o game_files/26.3.jar
+          mkdir -p game_files/.minecraft/versions/26.3
+          curl -fL "$CLIENT_JAR_URL" -o game_files/.minecraft/versions/26.3/26.3.jar
           curl -fL "$SERVER_JAR_URL" -o game_files/server.jar
 
       - name: Generate Horizon Game Data
         run: |
           cargo run --release -p horizon-prepare -- \
-            --client-jar game_files/26.3.jar \
+            --prepare \
             --server-jar game_files/server.jar \
-            --out ios_bundle/resources
-
+            --minecraft-dir game_files/.minecraft \
+            --root ios_bundle
+            
       - name: Build Rust Engine for iOS
         run: |
           cargo build --release --target $IOS_TARGET
