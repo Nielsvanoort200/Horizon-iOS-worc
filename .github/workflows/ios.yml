@@ -1,7 +1,7 @@
 name: Build Horizon iOS IPA
 
 on:
-  workflow_dispatch: # Allows manual triggering from the Actions tab
+  workflow_dispatch:
   push:
     branches: [ "main", "ios-build" ]
 
@@ -12,7 +12,7 @@ env:
 jobs:
   build-ipa:
     name: Compile & Package Unsigned IPA
-    runs-on: macos-latest # Required for Xcode & iOS SDK
+    runs-on: macos-latest
 
     steps:
       - name: Checkout Repository
@@ -23,7 +23,7 @@ jobs:
         with:
           targets: aarch64-apple-ios
 
-      - name: Set Up Java 25 (for horizon-prepare)
+      - name: Set Up Java 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -33,15 +33,10 @@ jobs:
         env:
           CLIENT_JAR_URL: ${{ secrets.CLIENT_JAR_URL }}
           SERVER_JAR_URL: ${{ secrets.SERVER_JAR_URL }}
-          ASSETS_ZIP_URL: ${{ secrets.ASSETS_ZIP_URL }}
         run: |
           mkdir -p game_files
-          curl -L "$CLIENT_JAR_URL" -o game_files/26.3.jar
-          curl -L "$SERVER_JAR_URL" -o game_files/server.jar
-          if [ -n "$ASSETS_ZIP_URL" ]; then
-            curl -L "$ASSETS_ZIP_URL" -o game_files/assets.zip
-            unzip -q game_files/assets.zip -d game_files/assets
-          fi
+          curl -fL "$CLIENT_JAR_URL" -o game_files/26.3.jar
+          curl -fL "$SERVER_JAR_URL" -o game_files/server.jar
 
       - name: Generate Horizon Game Data
         run: |
@@ -56,8 +51,7 @@ jobs:
 
       - name: Build & Package Unsigned IPA
         run: |
-          # Build the Xcode wrapper project without code signing
-          xcodebuild -project ios/Horizon.xcodeproj \
+          xcodebuild -project apple/Horizon.xcodeproj \
             -scheme Horizon \
             -configuration Release \
             -sdk iphoneos \
@@ -66,12 +60,10 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO
 
-          # Bundle compiled binary + prepared resources into Payload/Horizon.app
           mkdir -p Payload
           cp -r build/Build/Products/Release-iphoneos/Horizon.app Payload/
           cp -r ios_bundle/resources Payload/Horizon.app/resources
           
-          # Zip into an unsigned .ipa for SideStore/AltStore
           zip -qry Horizon-iOS.ipa Payload
 
       - name: Upload IPA Artifact
