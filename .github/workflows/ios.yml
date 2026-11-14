@@ -1,101 +1,38 @@
-name: Build Horizon iOS IPA
+name: Build Horizon iOS
 
 on:
-  workflow_dispatch:
   push:
-    branches: [ "main", "ios-build" ]
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 env:
-  CARGO_TERM_COLOR: always
-  IOS_TARGET: aarch64-apple-ios
+  DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
 
 jobs:
-  build-ipa:
-    name: Compile & Package Unsigned IPA
+  build:
+    name: Build for iOS (aarch64)
     runs-on: macos-latest
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Install Rust & iOS Target
+      - name: Set up Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: aarch64-apple-ios
 
-      - name: Set Up Java 25
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '25'
-
-      - name: Fetch Private Game Jars
-        env:
-          GOOGLE_KEY_JSON: ${{ secrets.GOOGLE_KEY_JSON }}
-          GOOGLE_KEY: ${{ secrets.GOOGLE_KEY }}
-          CLIENT_JAR_URL: ${{ secrets.CLIENT_JAR_URL }}
-          SERVER_JAR_URL: ${{ secrets.SERVER_JAR_URL }}
+      - name: Verify Xcode Environment
         run: |
-          if [ -z "$CLIENT_JAR_URL" ]; then
-            echo "Error: CLIENT_JAR_URL secret is empty or missing!"
-            exit 1
-          fi
-          mkdir -p game_files/.minecraft/versions/26.3/26.3.yml
-          echo "Downloading client jar..."
-          curl -fL "$CLIENT_JAR_URL" -o game_files/.minecraft/versions/26.3/26.3.yml
-          echo "Downloading server jar..."
-          curl -fL "$SERVER_JAR_URL" -o game_files/server.yml
-          
-      - name: Prepare Minecraft Version Directory
-        run: mkdir -p game_files/.minecraft/versions/26.3
-         
-      - name: Generate Horizon Game Data
+          xcodebuild -version
+          echo "Active Developer Directory: $DEVELOPER_DIR"
+
+      - name: Build Horizon for iOS
         run: |
-          mkdir -p ios_bundle
-          if [ -f "research-lock.json" ]; then
-            cp research-lock.json ios_bundle/
-          fi
-          
-          cargo run --release -p horizon-prepare -- \
-            --prepare \
-            --server-jar game_files/server.yml \
-            --minecraft-dir game_files/.minecraft/versions/26.3/26.3.yml \
-            --root ios_bundle
+          cargo build --release --target aarch64-apple-ios
 
-      - name: Build Rust Engine for iOS
+      - name: Verify Compiled Binary
         run: |
-          cargo build --release --target $IOS_TARGET
-
-      - name: Build & Package Unsigned IPA
-        run: |
-          xcodebuild -project apple/Horizon.xcodeproj \
-            -scheme Horizon \
-            -configuration Release \
-            -sdk iphoneos \
-            -derivedDataPath build \
-            CODE_SIGN_IDENTITY="" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=NO
-
-          mkdir -p Payload
-          
-          APP_PATH=$(find build -name "Horizon.app" -type d | head -n 1)
-          if [ -z "$APP_PATH" ]; then
-            echo "Error: Horizon.app not found in build directory!"
-            exit 1
-          fi
-          
-          cp -r "$APP_PATH" Payload/
-          
-          mkdir -p Payload/Horizon.app/resources
-          if [ -d "ios_bundle/.local/horizon-client/26.3" ]; then
-            cp -r ios_bundle/.local/horizon-client/26.3/* Payload/Horizon.app/resources/
-          fi
-          
-          zip -qry Horizon-iOS.ipa Payload
-
-      - name: Upload IPA Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: Horizon-iOS-IPA
-          path: Horizon-iOS.ipa
+          file target/aarch64-apple-ios/release/*
