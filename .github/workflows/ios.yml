@@ -40,7 +40,7 @@ jobs:
             echo "Error: CLIENT_JAR_URL secret is empty or missing!"
             exit 1
           fi
-          mkdir -p game_files/.minecraft/versions/26.3
+          mkdir -p game_files/.minecraft/versions/26.3/26.3.yml
           echo "Downloading client jar..."
           curl -fL "$CLIENT_JAR_URL" -o game_files/.minecraft/versions/26.3/26.3.yml
           echo "Downloading server jar..."
