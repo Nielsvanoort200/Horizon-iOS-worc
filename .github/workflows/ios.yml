@@ -44,11 +44,11 @@ jobs:
           fi
 
       - name: Generate Horizon Game Data
-        run: |
-          cargo run --release -p horizon-prepare -- \
-            --client-jar game_files/26.3.jar \
-            --server-jar game_files/server.jar \
-            --out ios_bundle/resources
+    run: |
+      cargo run --release -p horizon-prepare -- \
+        --client game_files/26.3.jar \
+        --server game_files/server.jar \
+        --out ios_bundle/resources
 
       - name: Build Rust Engine for iOS
         run: |
